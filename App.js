@@ -11,6 +11,8 @@ import {
   Alert,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import LinearGradient from 'react-native-linear-gradient'; 
+
 // Function to get permission for location
 const requestLocationPermission = async () => {
   try {
@@ -80,6 +82,14 @@ const App = () => {
   
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#00E89D', '#0078FF','#003365', '#FFFFFF']}
+        style={styles.container}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+      >
+        <Text>Campus Companion</Text>
+      </LinearGradient>
       <Button
         title="Share Live Location"
         onPress={this.liveLocationShare}
@@ -99,8 +109,7 @@ const App = () => {
 };
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex: 1, 
     alignItems: 'center',
     justifyContent: 'center',
   },
