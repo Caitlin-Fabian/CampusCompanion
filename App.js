@@ -8,18 +8,29 @@ import {
   Linking,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-import { initializeApp } from 'firebase/app';
-import { getAnalytics } from 'firebase/analytics';
-
-// Your Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAOX66-QNFaO96Vzvvj84BLGKw4R1Cav10",
-  authDomain: "campuscompanion-e5e4b.firebaseapp.com",
-  projectId: "campuscompanion-e5e4b",
-  storageBucket: "campuscompanion-e5e4b.appspot.com",
-  messagingSenderId: "243707578434",
-  appId: "1:243707578434:web:b2cf64238c3bc6260ac5db",
-  measurementId: "G-6P3XT05PXW"
+// Function to get permission for location
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: 'Geolocation Permission',
+        message: 'Can we access your location?',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'Yes',
+      },
+    );
+    console.log('granted', granted);
+    if (granted === 'granted') {
+      console.log('You can use Geolocation');
+      return true;
+    } else {
+      console.log('You cannot use Geolocation');
+      return false;
+    }
+  } catch (err) {
+    return false;
+  }
 };
 
 // Initialize Firebase
@@ -76,15 +87,27 @@ const App = () => {
 
   return (
     <View style={styles.container}>
-      <Button title="Share Live Location" onPress={liveLocationShare} />
+      <Button
+        title="Share Live Location"
+        onPress={this.liveLocationShare}
+        />
+      <View
+        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
+        <Button title="Get Location" onPress={getLocation} />
+      </View>
+      <Text>Latitude: {location ? location.coords.latitude : null}</Text>
+      <Text>Longitude: {location ? location.coords.longitude : null}</Text>
+      <View
+        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
+        <Button title="Send Location" onPress={sendLocation} />
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex: 1, 
     alignItems: 'center',
     justifyContent: 'center',
   },
