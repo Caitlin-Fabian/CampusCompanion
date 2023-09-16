@@ -6,11 +6,12 @@ import {
   Button,
   PermissionsAndroid,
   Linking,
-  Alert, // Import Alert from react-native
+  Alert,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import { initializeApp } from '@firebase/app';
 import { getDatabase, ref, push } from '@firebase/database';
+import { Twilio } from 'twilio'; // Import Twilio
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -24,17 +25,29 @@ const firebaseConfig = {
   measurementId: "G-6P3XT05PXW"
 };
 
+// Your Twilio credentials
+const twilioConfig = {
+  accountSid: 'ACac018d180f9b8da009dd88b8bc23be83',
+  authToken: 'd8e59d11c3366f121da2c2a3bd053853',
+  twilioPhoneNumber: '+18334321237',
+  recipientPhoneNumber: 'RECIPIENT_PHONE_NUMBER', // Recipient's phone number (NEED TO UPDATE TO MATCH DATABASE MONGODB)
+};
+
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
 const App = () => {
   const [location, setLocation] = useState(null);
-  const [sharingLocation, setSharingLocation] = useState(false); // State to track location sharing
+  const [sharingLocation, setSharingLocation] = useState(false);
+
+  const twilioClient = new Twilio(
+    twilioConfig.accountSid,
+    twilioConfig.authToken
+  );
 
   const liveLocationShare = () => {
     if (!sharingLocation) {
-      // Start location sharing
       const watchId = Geolocation.watchPosition(
         position => {
           console.log(position);
@@ -48,9 +61,8 @@ const App = () => {
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
 
-      setSharingLocation(true); // Update state to indicate sharing
+      setSharingLocation(true);
     } else {
-      // Stop location sharing with confirmation dialog
       Alert.alert(
         'Stop Sharing Location',
         'Are you sure you want to stop sharing your location?',
@@ -63,8 +75,8 @@ const App = () => {
           {
             text: 'Stop',
             onPress: () => {
-              Geolocation.clearWatch(watchId); // Stop watching location
-              setSharingLocation(false); // Update state to indicate not sharing
+              Geolocation.clearWatch(watchId);
+              setSharingLocation(false);
             },
           },
         ]
@@ -82,10 +94,15 @@ const App = () => {
           timestamp: timestamp,
         };
 
-        const dbRef = ref(database, 'locations/user1'); // Replace 'user1' with the appropriate user identifier
+        const dbRef = ref(database, 'locations/user1');
         push(dbRef, data)
           .then(() => {
             console.log('Location data sent successfully.');
+            // Send an SMS when the location is shared
+            sendSMS(
+              `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
+              twilioConfig.recipientPhoneNumber
+            );
           })
           .catch((error) => {
             console.error('Error sending location data:', error);
@@ -94,6 +111,21 @@ const App = () => {
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const message = username + "wants to share their location with you. Click this link to see where they are: https://cc23bucket.s3.us-east-2.amazonaws.com/index.html"
+
+  const sendSMS = (message, recipientPhoneNumber) => {
+    twilioClient.messages
+      .create({
+        body: message,
+        from: twilioConfig.twilioPhoneNumber,
+        to: recipientPhoneNumber,
+      })
+      .then((message) =>
+        console.log(`SMS sent with SID: ${message.sid}`)
+      )
+      .catch((error) => console.error('Error sending SMS:', error));
   };
 
   return (
