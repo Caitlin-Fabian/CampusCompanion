@@ -6,31 +6,22 @@ import {
   Button,
   PermissionsAndroid,
   Linking,
+  Alert, // Import Alert from react-native
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-// Function to get permission for location
-const requestLocationPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Geolocation Permission',
-        message: 'Can we access your location?',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'Yes',
-      },
-    );
-    console.log('granted', granted);
-    if (granted === 'granted') {
-      console.log('You can use Geolocation');
-      return true;
-    } else {
-      console.log('You cannot use Geolocation');
-      return false;
-    }
-  } catch (err) {
-    return false;
-  }
+import { initializeApp } from '@firebase/app';
+import { getDatabase, ref, push } from '@firebase/database';
+
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAOX66-QNFaO96Vzvvj84BLGKw4R1Cav10",
+  authDomain: "campuscompanion-e5e4b.firebaseapp.com",
+  databaseURL: "https://campuscompanion-e5e4b-default-rtdb.firebaseio.com",
+  projectId: "campuscompanion-e5e4b",
+  storageBucket: "campuscompanion-e5e4b.appspot.com",
+  messagingSenderId: "243707578434",
+  appId: "1:243707578434:web:b2cf64238c3bc6260ac5db",
+  measurementId: "G-6P3XT05PXW"
 };
 
 // Initialize Firebase
@@ -39,14 +30,16 @@ const database = getDatabase(app);
 
 const App = () => {
   const [location, setLocation] = useState(null);
+  const [sharingLocation, setSharingLocation] = useState(false); // State to track location sharing
 
   const liveLocationShare = () => {
-    useEffect(() => {
+    if (!sharingLocation) {
+      // Start location sharing
       const watchId = Geolocation.watchPosition(
         position => {
           console.log(position);
           setLocation(position);
-          sendLocation(position); // Automatically send location when it updates
+          sendLocation(position);
         },
         error => {
           console.log(error.code, error.message);
@@ -55,10 +48,28 @@ const App = () => {
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
 
-      return () => {
-        Geolocation.clearWatch(watchId);
-      };
-    }, []);
+      setSharingLocation(true); // Update state to indicate sharing
+    } else {
+      // Stop location sharing with confirmation dialog
+      Alert.alert(
+        'Stop Sharing Location',
+        'Are you sure you want to stop sharing your location?',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => {},
+            style: 'cancel',
+          },
+          {
+            text: 'Stop',
+            onPress: () => {
+              Geolocation.clearWatch(watchId); // Stop watching location
+              setSharingLocation(false); // Update state to indicate not sharing
+            },
+          },
+        ]
+      );
+    }
   };
 
   const sendLocation = (position) => {
@@ -88,26 +99,17 @@ const App = () => {
   return (
     <View style={styles.container}>
       <Button
-        title="Share Live Location"
-        onPress={this.liveLocationShare}
-        />
-      <View
-        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
-        <Button title="Get Location" onPress={getLocation} />
-      </View>
-      <Text>Latitude: {location ? location.coords.latitude : null}</Text>
-      <Text>Longitude: {location ? location.coords.longitude : null}</Text>
-      <View
-        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
-        <Button title="Send Location" onPress={sendLocation} />
-      </View>
+        title={sharingLocation ? 'Stop Sharing Location' : 'Share Live Location'}
+        onPress={liveLocationShare}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, 
+    flex: 1,
+    backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
   },
