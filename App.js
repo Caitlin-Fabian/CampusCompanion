@@ -4,12 +4,34 @@ import {createNativeStackNavigator} from './node_modules/@react-navigation/nativ
 import { HomeScreen } from './pages/homeScreen';
 import  {LoginScreen}  from './pages/loginScreen';
 import { Button } from 'react-native';
+import AppLoading from 'expo-app-loading';
+import { useState } from 'react';
+
+import useFonts from './useFonts';
 
 import { NativeBaseProvider, Box } from "native-base";
 const Stack = createNativeStackNavigator();
 
+
+
+
 export default MyStack = () => {
+  const [IsReady, SetIsReady] = useState(false);
+
+  const LoadFonts = async () => {
+    await useFonts();
+  };
+
+  if (!IsReady) {
+
   return (
+    <AppLoading
+        startAsync={LoadFonts}
+        onFinish={() => SetIsReady(true)}
+        onError={() => {}}
+      />);
+  }
+  return(
     <NativeBaseProvider>
     <NavigationContainer>
       <Stack.Navigator>
@@ -22,5 +44,6 @@ export default MyStack = () => {
       </Stack.Navigator>
     </NavigationContainer>
     </NativeBaseProvider>
+
   );
 };
