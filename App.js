@@ -12,10 +12,17 @@ import Geolocation from 'react-native-geolocation-service';
 import { initializeApp } from '@firebase/app';
 import { getDatabase, ref, push } from '@firebase/database';
 import { Twilio } from 'twilio'; // Import Twilio
+import { fireBaseApiKey, twillioToken } from 'react-native-dotenv';
+
+
+// import environmental variables
+
+const fireKey = fireBaseApiKey;
+const twillioKey = twillioToken;
 
 // Your Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAOX66-QNFaO96Vzvvj84BLGKw4R1Cav10",
+  apiKey: fireKey,
   authDomain: "campuscompanion-e5e4b.firebaseapp.com",
   databaseURL: "https://campuscompanion-e5e4b-default-rtdb.firebaseio.com",
   projectId: "campuscompanion-e5e4b",
@@ -28,7 +35,7 @@ const firebaseConfig = {
 // Your Twilio credentials
 const twilioConfig = {
   accountSid: 'ACac018d180f9b8da009dd88b8bc23be83',
-  authToken: 'd8e59d11c3366f121da2c2a3bd053853',
+  authToken: twillioKey,
   twilioPhoneNumber: '+18334321237',
   recipientPhoneNumber: 'RECIPIENT_PHONE_NUMBER', // Recipient's phone number (NEED TO UPDATE TO MATCH DATABASE MONGODB)
 };
