@@ -6,6 +6,7 @@ import { LoginScreen } from './pages/loginScreen';
 import { Button } from 'react-native';
 import AppLoading from 'expo-app-loading';
 import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
 import useFonts from './useFonts';
 
@@ -42,6 +43,8 @@ export default MyStack = () => {
     </NavigationContainer>
     </NativeBaseProvider>
 );
+  }
+
 
 const styles = StyleSheet.create({
   container: {
