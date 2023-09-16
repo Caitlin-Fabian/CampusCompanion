@@ -20,6 +20,12 @@ import { fireBaseApiKey, twillioToken } from 'react-native-dotenv';
 const fireKey = fireBaseApiKey;
 const twillioKey = twillioToken;
 
+// mongodb variables
+const name = data.name
+const user = data.userVal
+const number = data.favNumber
+
+
 // Your Firebase configuration
 const firebaseConfig = {
   apiKey: fireKey,
@@ -37,7 +43,7 @@ const twilioConfig = {
   accountSid: 'ACac018d180f9b8da009dd88b8bc23be83',
   authToken: twillioKey,
   twilioPhoneNumber: '+18334321237',
-  recipientPhoneNumber: 'RECIPIENT_PHONE_NUMBER', // Recipient's phone number (NEED TO UPDATE TO MATCH DATABASE MONGODB)
+  recipientPhoneNumber: number, // Recipient's phone number (NEED TO UPDATE TO MATCH DATABASE MONGODB)
 };
 
 // Initialize Firebase
@@ -137,6 +143,7 @@ const App = () => {
 
   return (
     <View style={styles.container}>
+      <Text>Welcome back, {data.name}!</Text>
       <Button
         title={sharingLocation ? 'Stop Sharing Location' : 'Share Live Location'}
         onPress={liveLocationShare}
