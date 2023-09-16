@@ -1,6 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
-import {StyleSheet, View, Text, Button, PermissionsAndroid} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   StyleSheet,
   View,
@@ -8,41 +6,30 @@ import {
   Button,
   PermissionsAndroid,
   Linking,
-  Alert,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
-// Function to get permission for location
-const requestLocationPermission = async () => {
-  try {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-      {
-        title: 'Geolocation Permission',
-        message: 'Hi in order to protect you we need your location, would you share it?',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'Yes',
-      },
-    );
-    console.log('granted', granted);
-    if (granted === 'granted') {
-      console.log('You can use Geolocation');
-      return true;
-    } else {
-      console.log('You cannot use Geolocation');
-      return false;
-    }
-  } catch (err) {
-    return false;
-  }
+import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
+
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAOX66-QNFaO96Vzvvj84BLGKw4R1Cav10",
+  authDomain: "campuscompanion-e5e4b.firebaseapp.com",
+  projectId: "campuscompanion-e5e4b",
+  storageBucket: "campuscompanion-e5e4b.appspot.com",
+  messagingSenderId: "243707578434",
+  appId: "1:243707578434:web:b2cf64238c3bc6260ac5db",
+  measurementId: "G-6P3XT05PXW"
 };
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
 const App = () => {
-  // state to hold location
-  const [location, setLocation] = useState(false);
-  // function to check permissions and get Location
+  const [location, setLocation] = useState(null);
 
   const liveLocationShare = () => {
-    const [location, setLocation] = useState(null);
-  
     useEffect(() => {
       const watchId = Geolocation.watchPosition(
         position => {
@@ -50,53 +37,37 @@ const App = () => {
           setLocation(position);
         },
         error => {
-          // Handle location error
           console.log(error.code, error.message);
           setLocation(null);
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
       );
-  
-      // Clean up the watchPosition when the component unmounts
+
       return () => {
         Geolocation.clearWatch(watchId);
       };
-    }, []); // Empties dependency array means this effect runs once on component mount
-
+    }, []);
   };
-  // Function to Send Location to other user.
+
   const sendLocation = () => {
     try {
       if (location) {
         const friend = `latitude is ${location.coords.latitude} and longitude is ${location.coords.longitude}`;
-        const url = ``;
+        const url = 'https://campuscompanion-e5e4b-default-rtdb.firebaseio.com/'; // Replace with your backend endpoint
         Linking.openURL(url);
       }
     } catch (error) {
       console.log(error);
     }
   };
-  
-  
+
   return (
     <View style={styles.container}>
-      <Button
-        title="Share Live Location"
-        onPress={this.liveLocationShare}
-        />
-      <View
-        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
-        <Button title="Get Location" onPress={getLocation} />
-      </View>
-      <Text>Latitude: {location ? location.coords.latitude : null}</Text>
-      <Text>Longitude: {location ? location.coords.longitude : null}</Text>
-      <View
-        style={{marginTop: 10, padding: 10, borderRadius: 10, width: '40%'}}>
-        <Button title="Send Location" onPress={sendLocation} />
-      </View>
+      <Button title="Share Live Location" onPress={liveLocationShare} />
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -105,4 +76,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
 export default App;
