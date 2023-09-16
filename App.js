@@ -24,7 +24,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+const database = getDatabase(app);
 
 const App = () => {
   const [location, setLocation] = useState(null);
@@ -35,6 +35,7 @@ const App = () => {
         position => {
           console.log(position);
           setLocation(position);
+          sendLocation(position); // Automatically send location when it updates
         },
         error => {
           console.log(error.code, error.message);
@@ -49,12 +50,24 @@ const App = () => {
     }, []);
   };
 
-  const sendLocation = () => {
+  const sendLocation = (position) => {
     try {
-      if (location) {
-        const friend = `latitude is ${location.coords.latitude} and longitude is ${location.coords.longitude}`;
-        const url = 'https://campuscompanion-e5e4b-default-rtdb.firebaseio.com/'; // Replace with your backend endpoint
-        Linking.openURL(url);
+      if (position) {
+        const timestamp = new Date().toISOString();
+        const data = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          timestamp: timestamp,
+        };
+
+        const dbRef = ref(database, 'locations/user1'); // Replace 'user1' with the appropriate user identifier
+        push(dbRef, data)
+          .then(() => {
+            console.log('Location data sent successfully.');
+          })
+          .catch((error) => {
+            console.error('Error sending location data:', error);
+          });
       }
     } catch (error) {
       console.log(error);
