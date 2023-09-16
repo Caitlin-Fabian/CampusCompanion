@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button } from 'react-native';
+import { Button } from 'native-base';
 
 export const HomeScreen = ({navigation}) => {
   return (
@@ -8,6 +8,6 @@ export const HomeScreen = ({navigation}) => {
       onPress={() =>
         navigation.navigate('Login')
       }
-    />
+    >Press Me</Button>
   );
 };
