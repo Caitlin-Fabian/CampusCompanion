@@ -13,13 +13,6 @@ export const HomeScreen = ({navigation}) => {
         // start={{ x: 0, y: 0 }}
         // end={{ x: 1, y: 1 }}
       >
-    {/* <Button
-      title="Go to Jane's profile"
-      onPress={() =>
-        navigation.navigate('Login')
-      }
-      
-    >Press Me</Button> */}
     <MenuExample/>
 <Center>        
   <Text style={{fontFamily: 'Baloo-Regular'}} fontSize="2xl">Pop the bubble if you feel unsafe!</Text>
